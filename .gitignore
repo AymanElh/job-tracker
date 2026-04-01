@@ -1,0 +1,64 @@
+# Dependencies
+node_modules/
+/dist
+/build
+.next/
+out/
+.vercel
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# System Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Temporary / Scratch
+temp/
+tmp/
+*.tmp
+*.bak
+*.swp
+
+# AI Internal & Agent Data
+.agents/
+skills-lock.json
+design-system/
+docs/
+brain/
+mcp_config.json
+tools_list.json
+browser_recordings/
+html_artifacts/
+implementation_plan.md
+task.md
+walkthrough.md
+
+# Additional Project Ignores
+api/node_modules/
+web/node_modules/
+api/.env
+web/.env.local
+/api/logs/
+/web/.next/
