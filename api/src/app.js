@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const logger = require('./config/logger');
 const { AppError, ApiResponse } = require('./utils');
 const authRouter = require('./modules/auth/auth.routes');
+const applicationRouter = require('./modules/applications/application.routes');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use('/health', (req, res) => {
 });
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/applications', applicationRouter);
 
 app.use((req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
