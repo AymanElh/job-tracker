@@ -15,7 +15,7 @@ pnpm-lock.yaml
 .env.development.local
 .env.test.local
 .env.production.local
-*.env*
+.env.prod
 
 # Logs
 npm-debug.log*
