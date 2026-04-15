@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 const logger = require('./logger');
 
 const connectDB = async () => {
-  const mongoURI = process.env.MONGO_URI || 'mongodb://admin:secret_password@mongo:27017/jobtrackr?authSource=admin';
-
+  const mongoURI = process.env.MONGO_URI;
   try {
     const conn = await mongoose.connect(mongoURI, {
       autoIndex: true,

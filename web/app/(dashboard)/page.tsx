@@ -21,6 +21,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
 const statusColors: Record<string, string> = {
+  planned: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
   applied: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
   screening: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
   technical: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
@@ -28,6 +29,17 @@ const statusColors: Record<string, string> = {
   offer: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
   rejected: 'bg-red-500/10 text-red-500 border-red-500/20',
   withdrawn: 'bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20',
+};
+
+const statusDotColors: Record<string, string> = {
+  planned: 'bg-indigo-500',
+  applied: 'bg-blue-500',
+  screening: 'bg-purple-500',
+  technical: 'bg-orange-500',
+  interview: 'bg-yellow-500',
+  offer: 'bg-emerald-500',
+  rejected: 'bg-red-500',
+  withdrawn: 'bg-muted-foreground',
 };
 
 export default function DashboardPage() {
@@ -82,28 +94,30 @@ export default function DashboardPage() {
     <div className="space-y-12">
       {/* Header */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <p className="text-muted-foreground text-sm font-medium uppercase tracking-[0.2em] mb-2">Workspace Overview</p>
-          <h1 className="text-5xl font-heading font-extrabold tracking-tighter">
+        <div className="w-full">
+          <p className="text-muted-foreground text-[10px] md:text-sm font-medium uppercase tracking-[0.2em] mb-2">Workspace Overview</p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-extrabold tracking-tighter break-words">
             WELCOME BACK, <span className="text-primary">{user?.name?.split(' ')[0] || 'USER'}</span>
           </h1>
         </div>
         
-        <NewApplicationSheet />
+        <div className="w-full md:w-auto">
+          <NewApplicationSheet />
+        </div>
       </header>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="p-6 border border-border bg-card/50 hover:border-primary/50 transition-colors group">
-            <div className="flex justify-between items-start mb-6">
-              <stat.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{stat.detail}</span>
+          <div key={stat.label} className="p-4 md:p-6 border border-border bg-card/50 hover:border-primary/50 transition-colors group">
+            <div className="flex justify-between items-start mb-4 md:mb-6">
+              <stat.icon className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{stat.detail}</span>
             </div>
-            <p className="text-4xl font-heading font-black mb-1">
-              {isStatsLoading ? <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /> : stat.value}
+            <p className="text-2xl md:text-4xl font-heading font-black mb-1 truncate">
+              {isStatsLoading ? <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /> : stat.value}
             </p>
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+            <p className="text-[8px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
           </div>
         ))}
       </div>
@@ -112,14 +126,14 @@ export default function DashboardPage() {
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Activity */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h2 className="text-xl font-heading font-bold uppercase tracking-tight">Recent Applications</h2>
-            <div className="relative group">
+            <div className="relative group w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <input 
                 type="text" 
                 placeholder="Search jobs..." 
-                className="pl-10 pr-4 py-2 bg-muted/30 border border-border text-xs font-medium focus:border-primary outline-none w-64 transition-all"
+                className="pl-10 pr-4 py-2 bg-muted/30 border border-border text-xs font-medium focus:border-primary outline-none w-full transition-all"
               />
             </div>
           </div>
@@ -142,34 +156,35 @@ export default function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="border border-border bg-card/30 divide-y divide-border">
+            <div className="border border-border bg-card/30 divide-y divide-border overflow-hidden">
               {recentAppsData?.map((app: Record<string, any>) => (
                 <div key={app._id} className="p-4 flex items-center justify-between hover:bg-muted/20 transition-colors group">
-                  <div className="flex items-center gap-4">
-                    <div className="space-y-1">
-                      <p className="font-bold text-foreground group-hover:text-primary transition-colors">{app.company?.name || 'Unknown Company'}</p>
-                      <p className="text-xs text-muted-foreground font-medium">{app.jobTitle}</p>
+                  <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <p className="font-bold text-sm md:text-base text-foreground group-hover:text-primary transition-colors truncate">{app.company?.name || 'Unknown Company'}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground font-medium truncate">{app.jobTitle}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-3 md:gap-6">
                     <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-medium">
                       <MapPin className="w-3 h-3" />
                       {app.location?.city || 'Remote'}
                     </div>
-                    <Badge variant="outline" className={`${statusColors[app.status]} rounded-none px-2 py-0 text-[10px] uppercase font-bold tracking-tight`}>
+                    <Badge variant="outline" className={`${statusColors[app.status]} rounded-full px-2 py-0 text-[8px] md:text-[10px] uppercase font-bold tracking-tight gap-1.5 border transition-all`}>
+                      <div className={`w-1 h-1 rounded-full ${statusDotColors[app.status]}`} />
                       {app.status}
                     </Badge>
-                    <div className="text-xs text-muted-foreground font-medium w-24 text-right">
-                      {format(new Date(app.appliedAt || app.createdAt), 'MMM dd, yyyy')}
+                    <div className="hidden xs:block text-[10px] md:text-xs text-muted-foreground font-medium w-20 md:w-24 text-right">
+                      {format(new Date(app.appliedAt || app.createdAt), 'MMM dd')}
                     </div>
                     {app.jobUrl && (
                       <a 
                         href={app.jobUrl} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                        className="p-1 md:p-2 text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
                       >
-                        <ExternalLink className="w-4 h-4" />
+                        <ExternalLink className="w-3 h-3 md:w-4 md:h-4" />
                       </a>
                     )}
                   </div>

@@ -159,19 +159,19 @@ function ApplicationsContent() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-10">
       {/* Header */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-4xl font-heading font-black tracking-tighter">
+          <h1 className="text-3xl md:text-4xl font-heading font-black tracking-tighter">
             APPLICATIONS<span className="text-primary">WORKSPACE</span>
           </h1>
-          <p className="text-muted-foreground text-sm font-medium tracking-tight">
+          <p className="text-muted-foreground text-xs md:text-sm font-medium tracking-tight">
             Manage your interview pipeline and track every step of the journey.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 md:gap-4 w-full md:w-auto">
           <input
             type="file"
             accept=".json"
@@ -183,42 +183,44 @@ function ApplicationsContent() {
             variant="outline" 
             onClick={triggerFileInput} 
             disabled={isImporting}
-            className="border-border hover:bg-muted font-bold text-xs uppercase tracking-widest h-10 rounded-none"
+            className="border-border hover:bg-muted font-bold text-[10px] uppercase tracking-widest h-9 md:h-10 rounded-none w-full sm:w-auto"
           >
-            {isImporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />} 
-            Import JSON
+            {isImporting ? <Loader2 className="w-3 h-3 mr-2 animate-spin" /> : <Upload className="w-3 h-3 mr-2" />} 
+            Import
           </Button>
           
           <Button 
             variant="outline" 
             onClick={handleExport} 
             disabled={isExporting}
-            className="border-border hover:bg-muted font-bold text-xs uppercase tracking-widest h-10 rounded-none"
+            className="border-border hover:bg-muted font-bold text-[10px] uppercase tracking-widest h-9 md:h-10 rounded-none w-full sm:w-auto"
           >
-            {isExporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />} 
-            Export CSV
+            {isExporting ? <Loader2 className="w-3 h-3 mr-2 animate-spin" /> : <Download className="w-3 h-3 mr-2" />} 
+            Export
           </Button>
 
-          <NewApplicationSheet onSuccess={handleRefresh} />
+          <div className="col-span-2 sm:col-auto">
+            <NewApplicationSheet onSuccess={handleRefresh} />
+          </div>
         </div>
       </header>
 
       {/* Controls Area */}
       <div className="flex flex-col lg:flex-row justify-between items-center gap-4 bg-card/20 p-4 border border-border">
-        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+        <div className="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
           <Tabs value={view} onValueChange={setView} className="w-full md:w-auto">
-            <TabsList className="bg-muted/30 border border-border h-10 p-1">
+            <TabsList className="bg-muted/30 border border-border h-10 p-1 w-full md:w-auto">
               <TabsTrigger 
                 value="kanban" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 text-xs font-bold uppercase tracking-widest transition-all"
+                className="flex-1 md:flex-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 text-[10px] font-bold uppercase tracking-widest transition-all"
               >
                 <LayoutDashboard className="w-3 h-3 mr-2" /> Kanban
               </TabsTrigger>
               <TabsTrigger 
                 value="list" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 text-xs font-bold uppercase tracking-widest transition-all"
+                className="flex-1 md:flex-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 text-[10px] font-bold uppercase tracking-widest transition-all"
               >
-                <List className="w-3 h-3 mr-2" /> List View
+                <List className="w-3 h-3 mr-2" /> List
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -226,9 +228,9 @@ function ApplicationsContent() {
           <div className="h-10 w-px bg-border mx-2 hidden lg:block" />
 
           {/* Filters */}
-          <div className="flex flex-wrap items-center gap-3 flex-1 lg:flex-none">
+          <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 w-full lg:flex-none">
             <Select value={filterStatus} onValueChange={(val) => { if (val) setFilterStatus(val); setPage(1); }}>
-              <SelectTrigger className="w-[130px] h-10 bg-muted/20 border-border text-[10px] font-bold uppercase">
+              <SelectTrigger className="w-full md:w-[130px] h-9 md:h-10 bg-muted/20 border-border text-[9px] md:text-[10px] font-bold uppercase">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent className="bg-background border-border">
@@ -245,7 +247,7 @@ function ApplicationsContent() {
             </Select>
 
             <Select value={filterMethod} onValueChange={(val) => { if (val) setFilterMethod(val); setPage(1); }}>
-              <SelectTrigger className="w-[130px] h-10 bg-muted/20 border-border text-[10px] font-bold uppercase">
+              <SelectTrigger className="w-full md:w-[130px] h-9 md:h-10 bg-muted/20 border-border text-[9px] md:text-[10px] font-bold uppercase">
                 <SelectValue placeholder="Method" />
               </SelectTrigger>
               <SelectContent className="bg-background border-border">
@@ -259,13 +261,13 @@ function ApplicationsContent() {
               </SelectContent>
             </Select>
 
-            <div className="relative group w-[130px]">
+            <div className="relative group w-full md:w-[130px]">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input 
                 placeholder="City..." 
                 value={filterCity}
                 onChange={(e) => setFilterCity(e.target.value)}
-                className="pl-8 h-10 bg-muted/20 border-border focus:border-primary text-[10px] font-bold uppercase transition-all"
+                className="pl-8 h-9 md:h-10 bg-muted/20 border-border focus:border-primary text-[9px] md:text-[10px] font-bold uppercase transition-all"
               />
             </div>
 
@@ -278,7 +280,7 @@ function ApplicationsContent() {
                   setFilterCity('');
                   setSearch('');
                 }}
-                className="h-10 px-2 text-[10px] font-bold uppercase text-muted-foreground hover:text-destructive"
+                className="h-9 md:h-10 px-2 text-[9px] md:text-[10px] font-bold uppercase text-muted-foreground hover:text-destructive w-full md:w-auto"
               >
                 Clear
               </Button>
@@ -286,7 +288,7 @@ function ApplicationsContent() {
           </div>
         </div>
 
-        <div className="relative w-full md:w-80 group">
+        <div className="relative w-full lg:w-80 group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <Input 
             placeholder="Search company or title..." 

@@ -53,7 +53,10 @@ class ApplicationService {
     if (status) filter.status = status;
     if (locationType) filter.locationType = locationType;
     if (contractType) filter.contractType = contractType;
-    if (city) filter['location.city'] = new RegExp(city, 'i');
+    if (city) {
+      const escapedCity = city.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter['location.city'] = new RegExp(escapedCity, 'i');
+    }
     if (appliedVia) filter.appliedVia = appliedVia;
     
     // If search is provided, use the repository's search method

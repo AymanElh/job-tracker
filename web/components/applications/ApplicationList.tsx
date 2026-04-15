@@ -58,6 +58,17 @@ interface ApplicationListProps {
   appliedVia?: string;
 }
 
+const statusDotColors: Record<string, string> = {
+  planned: 'bg-indigo-500',
+  applied: 'bg-blue-500',
+  screening: 'bg-purple-500',
+  technical: 'bg-orange-500',
+  interview: 'bg-yellow-500',
+  offer: 'bg-emerald-500',
+  rejected: 'bg-red-500',
+  withdrawn: 'bg-muted-foreground',
+};
+
 export default function ApplicationList({ 
   search, 
   page, 
@@ -181,16 +192,16 @@ export default function ApplicationList({
         <Table>
           <TableHeader className="bg-muted/30">
             <TableRow className="border-border hover:bg-transparent">
-              <TableHead className="w-[250px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4 px-6">Company & Role</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4">Source</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4 w-[160px]">Status</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4">Location</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4">
+              <TableHead className="w-[200px] md:w-[250px] text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4 px-4 md:px-6">Company & Role</TableHead>
+              <TableHead className="hidden md:table-cell text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4">Source</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4 w-[120px] md:w-[160px]">Status</TableHead>
+              <TableHead className="hidden sm:table-cell text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4">Location</TableHead>
+              <TableHead className="hidden xs:table-cell text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4">
                 <button 
                   onClick={() => setSort(sort === 'appliedAt' ? '-appliedAt' : 'appliedAt')}
                   className="flex items-center gap-1 hover:text-primary transition-colors uppercase"
                 >
-                  Applied Date
+                  Date
                   {sort === 'appliedAt' ? (
                     <ArrowUp className="w-3 h-3" />
                   ) : sort === '-appliedAt' ? (
@@ -200,21 +211,21 @@ export default function ApplicationList({
                   )}
                 </button>
               </TableHead>
-              <TableHead className="text-right text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4 px-6">Action</TableHead>
+              <TableHead className="text-right text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4 px-4 md:px-6">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {applications.map((app: Record<string, any>) => (
               <TableRow key={app._id} className="border-border hover:bg-muted/10 transition-colors group">
-                <TableCell className="px-6 py-4">
-                  <div className="space-y-1">
-                    <Link href={`/applications/${app._id}`} className="font-bold text-foreground hover:text-primary transition-colors">
+                <TableCell className="px-4 md:px-6 py-4 whitespace-normal">
+                  <div className="space-y-1 min-w-0">
+                    <Link href={`/applications/${app._id}`} className="font-bold text-sm md:text-base text-foreground hover:text-primary transition-colors block leading-tight">
                       {app.company}
                     </Link>
-                    <p className="text-xs text-muted-foreground font-medium">{app.title}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground font-medium leading-tight">{app.title}</p>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden md:table-cell">
                   <div className="space-y-1">
                     {app.appliedVia && (
                       <Badge variant="outline" className="text-[10px] capitalize px-1.5 py-0 rounded-none">
@@ -233,63 +244,66 @@ export default function ApplicationList({
                     defaultValue={app.status} 
                     onValueChange={(val) => updateStatusMutation.mutate({ id: app._id, status: val })}
                   >
-                    <SelectTrigger className={`h-8 text-xs font-bold uppercase tracking-tight rounded-none ${statusColors[app.status]}`}>
-                      <SelectValue />
+                    <SelectTrigger className={`h-8 text-[10px] md:text-xs font-bold uppercase tracking-tight rounded-full px-3 border transition-all ${statusColors[app.status]}`}>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-1.5 h-1.5 rounded-full ${statusDotColors[app.status]}`} />
+                        <SelectValue />
+                      </div>
                     </SelectTrigger>
                     <SelectContent className="bg-background border-border">
-                      <SelectItem value="planned">Planned</SelectItem>
-                      <SelectItem value="applied">Applied</SelectItem>
-                      <SelectItem value="screening">Screening</SelectItem>
-                      <SelectItem value="technical">Technical Interview</SelectItem>
-                      <SelectItem value="interview">Onsite Interview</SelectItem>
-                      <SelectItem value="offer">Offer Received</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
-                      <SelectItem value="withdrawn">Withdrawn</SelectItem>
+                      {Object.keys(statusColors).map((status) => (
+                        <SelectItem key={status} value={status} className="capitalize text-xs font-medium">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-1.5 h-1.5 rounded-full ${statusDotColors[status]}`} />
+                            {status.replace('-', ' ')}
+                          </div>
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
                     <MapPin className="w-3 h-3" />
                     {app.location || 'Remote'}
                   </div>
                 </TableCell>
-                <TableCell className="text-xs text-muted-foreground font-medium">
-                  {format(new Date(app.appliedAt || app.createdAt), 'MMM dd, yyyy')}
+                <TableCell className="hidden xs:table-cell text-[10px] md:text-xs text-muted-foreground font-medium">
+                  {format(new Date(app.appliedAt || app.createdAt), 'MMM dd')}
                 </TableCell>
-                <TableCell className="text-right px-6">
+                <TableCell className="text-right px-4 md:px-6">
                   <div className="flex items-center justify-end gap-1">
                     <Link 
                       href={`/applications/${app._id}`}
-                      className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                      className="p-1 md:p-2 text-muted-foreground hover:text-primary transition-colors"
                       title="View Application"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </Link>
                     <Link 
                       href={`/applications/${app._id}/edit`}
-                      className="p-2 text-muted-foreground hover:text-blue-500 transition-colors"
+                      className="p-1 md:p-2 text-muted-foreground hover:text-blue-500 transition-colors"
                       title="Edit Application"
                     >
-                      <Edit className="w-4 h-4" />
+                      <Edit className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </Link>
                     {app.url && (
                       <a 
                         href={app.url} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="p-2 text-muted-foreground hover:text-green-500 transition-colors"
+                        className="p-1 md:p-2 text-muted-foreground hover:text-green-500 transition-colors"
                         title="Job Posting URL"
                       >
-                        <ExternalLink className="w-4 h-4" />
+                        <ExternalLink className="w-3.5 h-3.5 md:w-4 md:h-4" />
                       </a>
                     )}
                     <button 
                       onClick={() => handleDelete(app._id)}
-                      className="p-2 text-muted-foreground hover:text-red-500 transition-colors"
+                      className="p-1 md:p-2 text-muted-foreground hover:text-red-500 transition-colors"
                       title="Delete Application"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </button>
                   </div>
                 </TableCell>

@@ -38,13 +38,20 @@ class ApplicationRepository extends BaseRepository {
   }
 
   /**
-   * Search applications by text
+   * Search applications by text (supports partial matching)
    */
   async search(userId, text, options = {}, filters = {}) {
+    // Escape special regex characters
+    const escapedText = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const searchRegex = new RegExp(escapedText, 'i');
     const filter = {
       ...filters,
       userId,
-      $text: { $search: text }
+      $or: [
+        { jobTitle: { $regex: searchRegex } },
+        { 'company.name': { $regex: searchRegex } },
+        { notes: { $regex: searchRegex } }
+      ]
     };
     return this.findAll(filter, options);
   }

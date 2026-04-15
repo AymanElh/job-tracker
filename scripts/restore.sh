@@ -7,10 +7,18 @@ LOG_FILE="$BACKUP_DIR/restore.log"
 
 # ── Load credentials & Settings ───────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ENV_FILE="$SCRIPT_DIR/../.env.prod"
+# Auto-detect which env file to use
+if [ "${NODE_ENV:-development}" = "production" ]; then
+  ENV_FILE="$SCRIPT_DIR/../.env.prod"
+else
+  ENV_FILE="$SCRIPT_DIR/../.env"
+fi
 
 if [ -f "$ENV_FILE" ]; then
-  export $(grep -E '^(MONGO_ROOT_USER|MONGO_ROOT_PASS|RCLONE_REMOTE)' "$ENV_FILE" | sed 's/#.*//' | xargs)
+  # Read variables and export them
+  set -a
+  source "$ENV_FILE"
+  set +a
 fi
 
 # Set defaults if not provided in env
