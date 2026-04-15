@@ -1,7 +1,11 @@
 services:
   mongo:
     container_name: jobtrackr-mongo
-    env_file: .env.prod
+    environment:
+      - MONGO_APP_USER=${MONGO_APP_USER}
+      - MONGO_APP_PASS=${MONGO_APP_PASS}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASS}
     volumes:
       - mongo_data:/data/db
       - ./api/src/config/mongo-init.js:/docker-entrypoint-initdb.d/init.js:ro
@@ -27,7 +31,7 @@ services:
       dockerfile: Dockerfile
     container_name: jobtrackr-web
     restart: unless-stopped
-    env_file: web/.env.prod
+    env_file: .env.prod
     environment:
       - PORT=3000
     depends_on:
