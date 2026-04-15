@@ -9,9 +9,11 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASS}
       - MONGO_INIT_DATABASE=jobtrackr
+      - MONGO_APP_USER=${MONGO_APP_USER}
+      - MONGO_APP_PASS=${MONGO_APP_PASS}
     volumes:
       - mongo_data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/init.js:ro
+      - ./api/src/config/mongo-init.js:/docker-entrypoint-initdb.d/init.js:ro
     healthcheck:
       test: echo 'db.runCommand({ping:1})' | mongosh --quiet -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --authenticationDatabase admin
       interval: 15s
