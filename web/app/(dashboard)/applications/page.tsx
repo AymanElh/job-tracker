@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -29,7 +29,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'react-hot-toast';
 
-export default function ApplicationsPage() {
+function ApplicationsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -227,7 +227,7 @@ export default function ApplicationsPage() {
 
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-3 flex-1 lg:flex-none">
-            <Select value={filterStatus} onValueChange={(val) => { setFilterStatus(val); setPage(1); }}>
+            <Select value={filterStatus} onValueChange={(val) => { if (val) setFilterStatus(val); setPage(1); }}>
               <SelectTrigger className="w-[130px] h-10 bg-muted/20 border-border text-[10px] font-bold uppercase">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -244,7 +244,7 @@ export default function ApplicationsPage() {
               </SelectContent>
             </Select>
 
-            <Select value={filterMethod} onValueChange={(val) => { setFilterMethod(val); setPage(1); }}>
+            <Select value={filterMethod} onValueChange={(val) => { if (val) setFilterMethod(val); setPage(1); }}>
               <SelectTrigger className="w-[130px] h-10 bg-muted/20 border-border text-[10px] font-bold uppercase">
                 <SelectValue placeholder="Method" />
               </SelectTrigger>
@@ -328,5 +328,17 @@ export default function ApplicationsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ApplicationsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <ApplicationsContent />
+    </Suspense>
   );
 }
