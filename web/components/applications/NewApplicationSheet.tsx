@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -36,6 +37,10 @@ const applicationSchema = z.object({
   url: z.string().url('Invalid URL').optional().or(z.literal('')),
   appliedVia: z.enum(['company-website', 'linkedin', 'indeed', 'email', 'recruiter', 'other']).optional(),
   foundOn: z.enum(['linkedin', 'indeed', 'company', 'email', 'referral', 'other']).optional(),
+  contractType: z.enum(['full-time', 'part-time', 'contract', 'freelance', 'internship']).optional(),
+  seniority: z.enum(['junior', 'mid', 'senior', 'lead']).optional(),
+  locationType: z.enum(['remote', 'hybrid', 'onsite']).optional(),
+  notes: z.string().optional(),
 });
 
 type ApplicationForm = z.infer<typeof applicationSchema>;
@@ -77,6 +82,10 @@ export default function NewApplicationSheet({ onSuccess, children }: NewApplicat
         location: data.location ? { city: data.location } : undefined,
         appliedVia: data.appliedVia,
         foundOn: data.foundOn,
+        contractType: data.contractType,
+        seniority: data.seniority,
+        locationType: data.locationType,
+        notes: data.notes,
       };
 
       const formData = new FormData();
@@ -127,7 +136,7 @@ export default function NewApplicationSheet({ onSuccess, children }: NewApplicat
           <div className="flex-1 p-8 space-y-8">
             <div className="space-y-6">
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Company Name</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Company Name *</Label>
                 <Input
                   {...register('company')}
                   placeholder="e.g. Google, Stripe"
@@ -137,17 +146,7 @@ export default function NewApplicationSheet({ onSuccess, children }: NewApplicat
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Company Email (Optional)</Label>
-                <Input
-                  {...register('companyEmail')}
-                  placeholder="hr@company.com"
-                  className="bg-muted/20 border-border focus:border-primary rounded-none"
-                />
-                {errors.companyEmail && <p className="text-[10px] text-destructive font-bold">{errors.companyEmail.message}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Job Title</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Job Title *</Label>
                 <Input
                   {...register('title')}
                   placeholder="e.g. Senior Software Engineer"
@@ -172,63 +171,133 @@ export default function NewApplicationSheet({ onSuccess, children }: NewApplicat
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            
-            <div className="space-y-6 pt-6 border-t border-border/50">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Where did you find this?</Label>
-                <Select onValueChange={(val: any) => setValue('foundOn', val as any)}>
-                  <SelectTrigger className="bg-muted/20 border-border rounded-none">
-                    <SelectValue placeholder="Select source" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border-border">
-                    <SelectItem value="linkedin">LinkedIn</SelectItem>
-                    <SelectItem value="indeed">Indeed</SelectItem>
-                    <SelectItem value="company">Company Website</SelectItem>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="referral">Referral</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">How did you apply?</Label>
-                <Select onValueChange={(val: any) => setValue('appliedVia', val as any)}>
-                  <SelectTrigger className="bg-muted/20 border-border rounded-none">
-                    <SelectValue placeholder="Select method" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border-border">
-                    <SelectItem value="company-website">Company Website</SelectItem>
-                    <SelectItem value="linkedin">LinkedIn</SelectItem>
-                    <SelectItem value="indeed">Indeed</SelectItem>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="recruiter">Recruiter</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Location (Optional)</Label>
-                <Input
-                  {...register('location')}
-                  placeholder="e.g. San Francisco, Remote"
-                  className="bg-muted/20 border-border focus:border-primary rounded-none"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Job Posting URL (Optional)</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Job Posting URL</Label>
                 <Input
                   {...register('url')}
                   placeholder="https://jobs.company.com/..."
                   className="bg-muted/20 border-border focus:border-primary rounded-none"
                 />
               </div>
+            </div>
+            
+            <div className="space-y-6 pt-6 border-t border-border/50">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Contract Type</Label>
+                  <Select onValueChange={(val: any) => setValue('contractType', val as any)}>
+                    <SelectTrigger className="bg-muted/20 border-border rounded-none">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border">
+                      <SelectItem value="full-time">Full-time</SelectItem>
+                      <SelectItem value="part-time">Part-time</SelectItem>
+                      <SelectItem value="contract">Contract</SelectItem>
+                      <SelectItem value="freelance">Freelance</SelectItem>
+                      <SelectItem value="internship">Internship</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Seniority</Label>
+                  <Select onValueChange={(val: any) => setValue('seniority', val as any)}>
+                    <SelectTrigger className="bg-muted/20 border-border rounded-none">
+                      <SelectValue placeholder="Select level" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border">
+                      <SelectItem value="junior">Junior</SelectItem>
+                      <SelectItem value="mid">Mid-level</SelectItem>
+                      <SelectItem value="senior">Senior</SelectItem>
+                      <SelectItem value="lead">Lead</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Location Type</Label>
+                  <Select onValueChange={(val: any) => setValue('locationType', val as any)}>
+                    <SelectTrigger className="bg-muted/20 border-border rounded-none">
+                      <SelectValue placeholder="Select setup" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border">
+                      <SelectItem value="remote">Remote</SelectItem>
+                      <SelectItem value="hybrid">Hybrid</SelectItem>
+                      <SelectItem value="onsite">On-site</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">City</Label>
+                  <Input
+                    {...register('location')}
+                    placeholder="e.g. San Francisco"
+                    className="bg-muted/20 border-border focus:border-primary rounded-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Found On</Label>
+                  <Select onValueChange={(val: any) => setValue('foundOn', val as any)}>
+                    <SelectTrigger className="bg-muted/20 border-border rounded-none">
+                      <SelectValue placeholder="Select source" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border">
+                      <SelectItem value="linkedin">LinkedIn</SelectItem>
+                      <SelectItem value="indeed">Indeed</SelectItem>
+                      <SelectItem value="company">Company Website</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="referral">Referral</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Applied Via</Label>
+                  <Select onValueChange={(val: any) => setValue('appliedVia', val as any)}>
+                    <SelectTrigger className="bg-muted/20 border-border rounded-none">
+                      <SelectValue placeholder="Select method" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border">
+                      <SelectItem value="company-website">Company Website</SelectItem>
+                      <SelectItem value="linkedin">LinkedIn</SelectItem>
+                      <SelectItem value="indeed">Indeed</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="recruiter">Recruiter</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Resume / CV (Optional)</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Company Email</Label>
+                <Input
+                  {...register('companyEmail')}
+                  placeholder="hr@company.com"
+                  className="bg-muted/20 border-border focus:border-primary rounded-none"
+                />
+                {errors.companyEmail && <p className="text-[10px] text-destructive font-bold">{errors.companyEmail.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Notes</Label>
+                <Textarea
+                  {...register('notes')}
+                  placeholder="Any additional details or things to remember..."
+                  className="bg-muted/20 border-border focus:border-primary rounded-none min-h-[100px] resize-none"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Resume / CV</Label>
                 <Input
                   type="file"
                   accept=".pdf,.doc,.docx"

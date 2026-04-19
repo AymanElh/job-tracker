@@ -242,12 +242,27 @@ export default function ApplicationDetailPage() {
         <div className="flex flex-wrap gap-6 pt-4 border-t border-border/50">
           <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
             <MapPin className="w-4 h-4 text-primary" />
-            {application.location?.city || 'Remote'}
+            {[application.location?.city, application.locationType]
+              .filter(Boolean)
+              .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+              .join(' • ') || 'Location Not Specified'}
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
             <Calendar className="w-4 h-4 text-primary" />
             Applied: {format(new Date(application.appliedAt || application.createdAt), 'MMM dd, yyyy')}
           </div>
+          {application.contractType && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+              <FileText className="w-4 h-4 text-primary" />
+              <span className="capitalize">{application.contractType.replace('-', ' ')}</span>
+            </div>
+          )}
+          {application.seniority && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+              <Activity className="w-4 h-4 text-primary" />
+              <span className="capitalize">{application.seniority}</span>
+            </div>
+          )}
           {application.appliedVia && (
             <div className={`flex items-center gap-2 text-sm font-medium ${application.appliedVia === 'email' ? 'text-primary' : 'text-muted-foreground'}`}>
               <span className="font-bold uppercase tracking-widest text-[10px]">Via:</span>
@@ -308,6 +323,13 @@ export default function ApplicationDetailPage() {
               <p className="text-muted-foreground text-sm italic">No job description provided. Click Edit Details to add one.</p>
             )}
           </div>
+          
+          {application.notes && (
+            <div className="border border-border bg-card/30 p-8">
+              <h2 className="text-lg font-heading font-black uppercase tracking-widest mb-6 border-b border-border/50 pb-4">Notes</h2>
+              <p className="text-muted-foreground text-sm whitespace-pre-wrap">{application.notes}</p>
+            </div>
+          )}
         </div>
 
         {/* Right Column: Contacts & Follow-ups */}
