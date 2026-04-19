@@ -1,0 +1,24 @@
+# .github/workflows/deploy.yml
+name: Deploy JobTrackr
+
+on:
+  push:
+    branches: [main]        # triggers on every push to main
+
+jobs:
+  deploy:
+    runs-on: self-hosted    # runs ON YOUR MACHINE (free)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Rebuild and restart containers
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+            up --build -d --remove-orphans
+
+      - name: Verify deployment
+        run: |
+          sleep 10
+          curl -f http://localhost/api/v1/health || exit 1

@@ -43,6 +43,7 @@ tmp/
 
 # AI Internal & Agent Data
 .agents/
+actions-runner/*
 skills-lock.json
 design-system/
 docs/
