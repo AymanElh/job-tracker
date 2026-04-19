@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'react-hot-toast';
 import dynamic from 'next/dynamic';
@@ -29,6 +30,10 @@ const applicationSchema = z.object({
   appliedVia: z.enum(['company-website', 'linkedin', 'indeed', 'email', 'recruiter', 'other']).optional(),
   foundOn: z.enum(['linkedin', 'indeed', 'company', 'email', 'referral', 'other']).optional(),
   appliedAt: z.string().optional(),
+  contractType: z.enum(['full-time', 'part-time', 'contract', 'freelance', 'internship']).optional(),
+  seniority: z.enum(['junior', 'mid', 'senior', 'lead']).optional(),
+  locationType: z.enum(['remote', 'hybrid', 'onsite']).optional(),
+  notes: z.string().optional(),
 });
 
 type ApplicationForm = z.infer<typeof applicationSchema>;
@@ -56,31 +61,35 @@ export default function EditApplicationPage() {
     formState: { errors },
   } = useForm<ApplicationForm>({
     resolver: zodResolver(applicationSchema),
+    values: application ? {
+      company: application.company?.name || '',
+      companyEmail: application.company?.email || '',
+      title: application.jobTitle || '',
+      status: (application.status as any) || 'applied',
+      location: application.location?.city || '',
+      url: application.jobUrl || '',
+      appliedAt: application.appliedAt ? new Date(application.appliedAt).toISOString().split('T')[0] : undefined,
+      appliedVia: application.appliedVia as any || undefined,
+      foundOn: application.foundOn as any || undefined,
+      contractType: application.contractType as any || undefined,
+      seniority: application.seniority as any || undefined,
+      locationType: application.locationType as any || undefined,
+      notes: application.notes || '',
+    } : undefined,
   });
 
   const statusValue = watch('status');
   const foundOnValue = watch('foundOn');
   const appliedViaValue = watch('appliedVia');
+  const contractTypeValue = watch('contractType');
+  const seniorityValue = watch('seniority');
+  const locationTypeValue = watch('locationType');
 
   useEffect(() => {
-    if (application) {
-      setValue('company', application.company?.name || '');
-      setValue('companyEmail', application.company?.email || '');
-      setValue('title', application.jobTitle || '');
-      setValue('status', (application.status as any) || 'applied');
-      setValue('location', application.location?.city || '');
-      setValue('url', application.jobUrl || '');
-      if (application.appliedAt) {
-        const date = new Date(application.appliedAt);
-        setValue('appliedAt', date.toISOString().split('T')[0]);
-      }
-      if (application.appliedVia) setValue('appliedVia', application.appliedVia as any);
-      if (application.foundOn) setValue('foundOn', application.foundOn as any);
-      
-      const description = application.jobDescription || '';
-      setJobDescription(description);
+    if (application && application.jobDescription !== undefined) {
+      setJobDescription(application.jobDescription || '');
     }
-  }, [application, setValue]);
+  }, [application]);
 
   const updateMutation = useMutation({
     mutationFn: async (payload: FormData) => {
@@ -115,6 +124,10 @@ export default function EditApplicationPage() {
       foundOn: data.foundOn,
       appliedAt: data.appliedAt,
       jobDescription: jobDescription,
+      contractType: data.contractType,
+      seniority: data.seniority,
+      locationType: data.locationType,
+      notes: data.notes,
     };
 
     const formData = new FormData();
@@ -217,6 +230,63 @@ export default function EditApplicationPage() {
                 </Select>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Contract Type</Label>
+                  <Select value={contractTypeValue || ''} onValueChange={(val) => setValue('contractType', (val || undefined) as any)}>
+                    <SelectTrigger className="bg-muted/20 border-border rounded-none">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border">
+                      <SelectItem value="full-time">Full-time</SelectItem>
+                      <SelectItem value="part-time">Part-time</SelectItem>
+                      <SelectItem value="contract">Contract</SelectItem>
+                      <SelectItem value="freelance">Freelance</SelectItem>
+                      <SelectItem value="internship">Internship</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Seniority</Label>
+                  <Select value={seniorityValue || ''} onValueChange={(val) => setValue('seniority', (val || undefined) as any)}>
+                    <SelectTrigger className="bg-muted/20 border-border rounded-none">
+                      <SelectValue placeholder="Select level" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border">
+                      <SelectItem value="junior">Junior</SelectItem>
+                      <SelectItem value="mid">Mid-level</SelectItem>
+                      <SelectItem value="senior">Senior</SelectItem>
+                      <SelectItem value="lead">Lead</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Location Type</Label>
+                  <Select value={locationTypeValue || ''} onValueChange={(val) => setValue('locationType', (val || undefined) as any)}>
+                    <SelectTrigger className="bg-muted/20 border-border rounded-none">
+                      <SelectValue placeholder="Select setup" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border">
+                      <SelectItem value="remote">Remote</SelectItem>
+                      <SelectItem value="hybrid">Hybrid</SelectItem>
+                      <SelectItem value="onsite">On-site</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">City</Label>
+                  <Input
+                    {...register('location')}
+                    className="bg-muted/20 border-border focus:border-primary rounded-none"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Application Date</Label>
                 <Input
@@ -228,20 +298,21 @@ export default function EditApplicationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Location</Label>
-                <Input
-                  {...register('location')}
-                  className="bg-muted/20 border-border focus:border-primary rounded-none"
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Job Posting URL</Label>
                 <Input
                   {...register('url')}
                   className="bg-muted/20 border-border focus:border-primary rounded-none"
                 />
                 {errors.url && <p className="text-[10px] text-destructive font-bold">{errors.url.message}</p>}
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Notes</Label>
+                <Textarea
+                  {...register('notes')}
+                  placeholder="Any additional details..."
+                  className="bg-muted/20 border-border focus:border-primary rounded-none min-h-[100px] resize-none"
+                />
               </div>
 
               <div className="space-y-2">
@@ -264,7 +335,7 @@ export default function EditApplicationPage() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Where did you find this?</Label>
-                <Select value={foundOnValue} onValueChange={(val) => setValue('foundOn', (val || 'other') as any)}>
+                <Select value={foundOnValue || ''} onValueChange={(val) => setValue('foundOn', (val || undefined) as any)}>
                   <SelectTrigger className="bg-muted/20 border-border rounded-none">
                     <SelectValue placeholder="Select source" />
                   </SelectTrigger>
@@ -281,7 +352,7 @@ export default function EditApplicationPage() {
 
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">How did you apply?</Label>
-                <Select value={appliedViaValue} onValueChange={(val) => setValue('appliedVia', (val || 'other') as any)}>
+                <Select value={appliedViaValue || ''} onValueChange={(val) => setValue('appliedVia', (val || undefined) as any)}>
                   <SelectTrigger className="bg-muted/20 border-border rounded-none">
                     <SelectValue placeholder="Select method" />
                   </SelectTrigger>
