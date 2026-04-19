@@ -14,6 +14,7 @@ const applicationRouter = require('./modules/applications/application.routes');
 const app = express();
 
 // Security Middlewares
+app.set('trust proxy', 1);
 app.use(helmet());
 
 // 1. Body Parser (Must be first to populate req.body)
@@ -61,6 +62,9 @@ app.use(morgan('combined', { stream: { write: (message) => logger.info(message.t
 
 // Health Check
 app.get('/health', (req, res) => {
+  ApiResponse.success(res, { status: 'OK' }, 'System is healthy');
+});
+app.get('/api/v1/health', (req, res) => {
   ApiResponse.success(res, { status: 'OK' }, 'System is healthy');
 });
 

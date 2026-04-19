@@ -1,3 +1,4 @@
+const { Parser } = require('@json2csv/plainjs');
 const ApplicationService = require('./application.service');
 const { ApiResponse, asyncHandler } = require('../../utils');
 
