@@ -20,7 +20,7 @@ class ApplicationRepository extends BaseRepository {
    */
   async getStats(userId) {
     return this.model.aggregate([
-      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: new mongoose.Types.ObjectId(userId), isDeleted: { $ne: true } } },
       {
         $group: {
           _id: '$status',

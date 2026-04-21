@@ -30,11 +30,15 @@ router.route('/')
 router.get('/stats', applicationController.getStatsSummary);
 router.get('/export/csv', applicationController.exportApplicationsCsv);
 router.post('/batch', applicationController.importApplications);
+router.get('/trash', applicationController.getTrashedApplications);
 
 router.route('/:id')
   .get(applicationController.getApplicationById)
   .patch(upload.single('resume'), parseFormData, validate(applicationValidation.updateApplication), applicationController.updateApplication)
   .delete(applicationController.deleteApplication);
+
+router.patch('/:id/restore', applicationController.restoreApplication);
+router.delete('/:id/hard', applicationController.hardDeleteApplication);
 
 router.post('/:id/follow-ups', applicationController.addFollowUp);
 router.post('/:id/contacts', applicationController.addContact);

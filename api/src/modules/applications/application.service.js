@@ -30,7 +30,7 @@ class ApplicationService {
   async getAllApplicationsForExport(userId) {
     // using findByUser but overriding limit to a very high number or 0 (if BaseRepository supports it, or direct model call)
     // Actually, BaseRepository.findAll uses skip/limit. If we need all, we should probably just query the model directly.
-    return ApplicationRepository.model.find({ userId }).sort('-createdAt').lean();
+    return ApplicationRepository.model.find({ userId, isDeleted: { $ne: true } }).sort('-createdAt').lean();
   }
 
   /**
@@ -49,7 +49,7 @@ class ApplicationService {
       search 
     } = query;
 
-    const filter = {};
+    const filter = { isDeleted: { $ne: true } };
     if (status) filter.status = status;
     if (locationType) filter.locationType = locationType;
     if (contractType) filter.contractType = contractType;
@@ -73,7 +73,7 @@ class ApplicationService {
   async getApplicationById(userId, applicationId) {
     const application = await ApplicationRepository.findById(applicationId, 'contacts');
     
-    if (!application || application.userId.toString() !== userId.toString()) {
+    if (!application || application.userId.toString() !== userId.toString() || application.isDeleted) {
       throw new AppError('Application not found or unauthorized', 404);
     }
     
@@ -154,7 +154,7 @@ class ApplicationService {
    */
   async deleteApplication(userId, applicationId) {
     await this.getApplicationById(userId, applicationId);
-    return ApplicationRepository.delete(applicationId);
+    return ApplicationRepository.update(applicationId, { isDeleted: true });
   }
 
   /**
@@ -162,6 +162,42 @@ class ApplicationService {
    */
   async getStatsSummary(userId) {
     return ApplicationRepository.getStats(userId);
+  }
+
+  /**
+   * Get trashed applications
+   */
+  async getTrashedApplications(userId, query) {
+    const { page, limit, sort } = query;
+    return ApplicationRepository.findByUser(userId, { isDeleted: true }, { page, limit, sort });
+  }
+
+  /**
+   * Restore a soft-deleted application
+   */
+  async restoreApplication(userId, applicationId) {
+    const application = await ApplicationRepository.model.findOne({ _id: applicationId, userId });
+    if (!application) {
+      throw new AppError('Application not found or unauthorized', 404);
+    }
+    
+    application.isDeleted = false;
+    return application.save();
+  }
+
+  /**
+   * Permanently delete an application
+   */
+  async hardDeleteApplication(userId, applicationId) {
+    const application = await ApplicationRepository.model.findOne({ _id: applicationId, userId });
+    if (!application) {
+      throw new AppError('Application not found or unauthorized', 404);
+    }
+    
+    // Also delete associated contacts
+    await Contact.deleteMany({ _id: { $in: application.contacts } });
+    
+    return ApplicationRepository.delete(applicationId);
   }
 }
 
