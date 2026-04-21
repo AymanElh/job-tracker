@@ -298,7 +298,7 @@ export default function ApplicationDetailPage() {
           )}
           {application.resumeUrl && (
             <a 
-              href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${application.resumeUrl}`} 
+              href={application.resumeUrl.startsWith('http') ? application.resumeUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${application.resumeUrl}`} 
               target="_blank" 
               rel="noreferrer"
               className="flex items-center gap-2 text-sm text-emerald-500 hover:underline font-medium"
@@ -311,12 +311,13 @@ export default function ApplicationDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Job Description */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="border border-border bg-card/30 p-8">
+        <div className="lg:col-span-2 space-y-6 min-w-0 w-full max-w-full">
+          <div className="border border-border bg-card/30 p-6 sm:p-8 w-full max-w-full overflow-hidden">
             <h2 className="text-lg font-heading font-black uppercase tracking-widest mb-6 border-b border-border/50 pb-4">Job Description</h2>
             {application.jobDescription ? (
               <div 
-                className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:my-0 text-muted-foreground"
+                className="prose prose-sm dark:prose-invert max-w-full w-full prose-p:leading-relaxed prose-pre:my-0 text-muted-foreground [&_*]:break-words [&_a]:break-all [&_pre]:overflow-x-auto [&_pre]:max-w-full"
+                style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
                 dangerouslySetInnerHTML={{ __html: application.jobDescription }}
               />
             ) : (
@@ -325,9 +326,14 @@ export default function ApplicationDetailPage() {
           </div>
           
           {application.notes && (
-            <div className="border border-border bg-card/30 p-8">
+            <div className="border border-border bg-card/30 p-6 sm:p-8 w-full max-w-full overflow-hidden">
               <h2 className="text-lg font-heading font-black uppercase tracking-widest mb-6 border-b border-border/50 pb-4">Notes</h2>
-              <p className="text-muted-foreground text-sm whitespace-pre-wrap">{application.notes}</p>
+              <p 
+                className="text-muted-foreground text-sm whitespace-pre-wrap break-words"
+                style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
+              >
+                {application.notes}
+              </p>
             </div>
           )}
         </div>

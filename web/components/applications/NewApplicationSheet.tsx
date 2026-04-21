@@ -111,6 +111,10 @@ export default function NewApplicationSheet({ onSuccess, children }: NewApplicat
     }
   };
 
+  const onError = (errors: any) => {
+    toast.error('Please fix the validation errors in the form.');
+  };
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
@@ -132,7 +136,7 @@ export default function NewApplicationSheet({ onSuccess, children }: NewApplicat
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col h-full">
+        <form onSubmit={handleSubmit(onSubmit, onError)} className="flex-1 flex flex-col h-full">
           <div className="flex-1 p-8 space-y-8">
             <div className="space-y-6">
               <div className="space-y-2">
@@ -179,6 +183,7 @@ export default function NewApplicationSheet({ onSuccess, children }: NewApplicat
                   placeholder="https://jobs.company.com/..."
                   className="bg-muted/20 border-border focus:border-primary rounded-none"
                 />
+                {errors.url && <p className="text-[10px] text-destructive font-bold">{errors.url.message}</p>}
               </div>
             </div>
             

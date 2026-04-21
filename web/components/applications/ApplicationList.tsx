@@ -135,10 +135,10 @@ export default function ApplicationList({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['applications'] });
-      toast.success('Application deleted');
+      toast.success('Application moved to trash');
     },
     onError: () => {
-      toast.error('Failed to delete application');
+      toast.error('Failed to move application to trash');
     }
   });
 
@@ -166,7 +166,7 @@ export default function ApplicationList({
   }
 
   const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this application?')) {
+    if (window.confirm('Are you sure you want to move this application to the trash?')) {
       deleteMutation.mutate(id);
     }
   };
@@ -301,7 +301,7 @@ export default function ApplicationList({
                     <button 
                       onClick={() => handleDelete(app._id)}
                       className="p-1 md:p-2 text-muted-foreground hover:text-red-500 transition-colors"
-                      title="Delete Application"
+                      title="Move to Trash"
                     >
                       <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </button>
