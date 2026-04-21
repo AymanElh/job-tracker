@@ -9,6 +9,8 @@ const router = express.Router();
 
 router.post('/register', validate(authValidation.register), authController.register);
 router.post('/login', validate(authValidation.login), authController.login);
+router.post('/refresh-token', authController.refreshToken);
+router.post('/logout', authController.logout);
 
 // Protected routes
 router.use(protect);
