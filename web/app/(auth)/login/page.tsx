@@ -22,8 +22,8 @@ export default function LoginPage() {
 
     try {
       const response = await api.post('/auth/login', { email, password });
-      const { user, token } = response.data;
-      setAuth(user, token);
+      const { token, data } = response.data;
+      setAuth(data.user, token);
       toast.success('Welcome back!');
       router.push('/');
     } catch (error: any) {

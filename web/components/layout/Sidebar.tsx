@@ -19,9 +19,15 @@ export default function Sidebar() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
 
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      logout();
+      router.push('/login');
+    }
   };
 
   const navItems = [
