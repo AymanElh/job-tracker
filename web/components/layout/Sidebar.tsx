@@ -1,27 +1,41 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Briefcase, 
   BarChart3, 
   Settings, 
   LogOut,
-  User
+  User,
+  Trash2
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      logout();
+      router.push('/login');
+    }
+  };
 
   const navItems = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Applications', href: '/applications', icon: Briefcase },
     { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     { name: 'Settings', href: '/settings', icon: Settings },
+    { name: 'Trash', href: '/trash', icon: Trash2 },
   ];
 
   return (
@@ -67,7 +81,7 @@ export default function Sidebar() {
         )}
         
         <button
-          onClick={logout}
+          onClick={handleLogout}
           className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
         >
           <LogOut className="w-4 h-4" />

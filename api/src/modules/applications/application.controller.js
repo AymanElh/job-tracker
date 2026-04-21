@@ -1,11 +1,12 @@
 const { Parser } = require('@json2csv/plainjs');
 const ApplicationService = require('./application.service');
-const { ApiResponse, asyncHandler } = require('../../utils');
+const { ApiResponse, asyncHandler, AppError } = require('../../utils');
+const { uploadFileToDrive } = require('../../utils/googleDrive');
 
 /**
  * Controller for Job Applications
  */
-const createApplication = asyncHandler(async (req, res) => {
+const createApplication = asyncHandler(async (req, res, next) => {
   let applicationData = req.body;
   
   // If data is sent as a string (FormData), parse it
@@ -14,7 +15,12 @@ const createApplication = asyncHandler(async (req, res) => {
   }
 
   if (req.file) {
-    applicationData.resumeUrl = `/uploads/resumes/${req.file.filename}`;
+    try {
+      const driveUrl = await uploadFileToDrive(req.file);
+      applicationData.resumeUrl = driveUrl;
+    } catch (error) {
+      return next(new AppError('Failed to upload resume to Google Drive: ' + error.message, 500));
+    }
   }
 
   const application = await ApplicationService.createApplication(req.user.id, applicationData);
@@ -31,7 +37,7 @@ const getApplicationById = asyncHandler(async (req, res) => {
   ApiResponse.success(res, application, 'Application retrieved successfully');
 });
 
-const updateApplication = asyncHandler(async (req, res) => {
+const updateApplication = asyncHandler(async (req, res, next) => {
   let applicationData = req.body;
   
   // If data is sent as a string (FormData), parse it
@@ -40,7 +46,12 @@ const updateApplication = asyncHandler(async (req, res) => {
   }
 
   if (req.file) {
-    applicationData.resumeUrl = `/uploads/resumes/${req.file.filename}`;
+    try {
+      const driveUrl = await uploadFileToDrive(req.file);
+      applicationData.resumeUrl = driveUrl;
+    } catch (error) {
+      return next(new AppError('Failed to upload resume to Google Drive: ' + error.message, 500));
+    }
   }
 
   const application = await ApplicationService.updateApplication(req.user.id, req.params.id, applicationData);
@@ -50,6 +61,21 @@ const updateApplication = asyncHandler(async (req, res) => {
 const deleteApplication = asyncHandler(async (req, res) => {
   await ApplicationService.deleteApplication(req.user.id, req.params.id);
   ApiResponse.success(res, null, 'Application deleted successfully');
+});
+
+const getTrashedApplications = asyncHandler(async (req, res) => {
+  const result = await ApplicationService.getTrashedApplications(req.user.id, req.query);
+  ApiResponse.paginated(res, result, 'Trashed applications retrieved successfully');
+});
+
+const restoreApplication = asyncHandler(async (req, res) => {
+  const application = await ApplicationService.restoreApplication(req.user.id, req.params.id);
+  ApiResponse.success(res, application, 'Application restored successfully');
+});
+
+const hardDeleteApplication = asyncHandler(async (req, res) => {
+  await ApplicationService.hardDeleteApplication(req.user.id, req.params.id);
+  ApiResponse.success(res, null, 'Application permanently deleted');
 });
 
 const getStatsSummary = asyncHandler(async (req, res) => {
@@ -128,6 +154,9 @@ module.exports = {
   getApplicationById,
   updateApplication,
   deleteApplication,
+  getTrashedApplications,
+  restoreApplication,
+  hardDeleteApplication,
   getStatsSummary,
   addFollowUp,
   addContact,

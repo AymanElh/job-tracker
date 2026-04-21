@@ -47,4 +47,9 @@ userSchema.methods.correctPassword = async function (candidatePassword, userPass
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+// Instance method to check refresh token
+userSchema.methods.correctRefreshToken = async function (candidateRefreshToken, userRefreshToken) {
+  return await bcrypt.compare(candidateRefreshToken, userRefreshToken);
+};
+
 module.exports = mongoose.model('User', userSchema);

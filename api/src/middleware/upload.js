@@ -2,18 +2,8 @@ const multer = require('multer');
 const path = require('path');
 const { AppError } = require('../utils');
 
-// Multer storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/resumes');
-  },
-  filename: (req, file, cb) => {
-    // Keep original extension, but add timestamp for uniqueness
-    const ext = path.extname(file.originalname);
-    const name = path.basename(file.originalname, ext).replace(/\s+/g, '-').toLowerCase();
-    cb(null, `${name}-${Date.now()}${ext}`);
-  }
-});
+// Multer memory storage configuration (for uploading to Google Drive)
+const storage = multer.memoryStorage();
 
 // File filter (optional: limit to pdf, doc, docx)
 const fileFilter = (req, file, cb) => {

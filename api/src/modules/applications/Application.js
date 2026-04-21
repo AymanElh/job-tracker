@@ -99,6 +99,12 @@ const applicationSchema = new Schema({
   cvVersion: String,
   coverLetter: String,
   
+  isDeleted: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+  
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
