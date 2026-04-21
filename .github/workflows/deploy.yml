@@ -3,7 +3,7 @@ name: Deploy JobTrackr
 
 on:
   push:
-    branches: [main]        # triggers on every push to main
+    branches: [main, staging]        # triggers on every push to main or staging
 
 jobs:
   deploy:
