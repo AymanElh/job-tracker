@@ -87,4 +87,5 @@ networks:
 
 volumes:
   mongo_data:
+    external: true
     name: jobtrackr_mongo_data
