@@ -36,7 +36,8 @@ services:
       - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
       - ME_CONFIG_BASICAUTH_USERNAME=${ME_USER}
       - ME_CONFIG_BASICAUTH_PASSWORD=${ME_PASS}
-      - ME_CONFIG_SITE_PORT=8081   # explicitly override PORT env var injection
+      - ME_CONFIG_SITE_PORT=8081
+      - PORT=8081   # override PORT=5000 injected from env_file
     depends_on:
       mongo:
         condition: service_healthy
