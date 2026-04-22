@@ -48,7 +48,6 @@ services:
       dockerfile: Dockerfile
     container_name: jobtrackr-api
     restart: unless-stopped
-    env_file: .env
     depends_on:
       mongo:
         condition: service_healthy
@@ -61,7 +60,6 @@ services:
       dockerfile: Dockerfile
     container_name: jobtrackr-web
     restart: unless-stopped
-    env_file: .env
     environment:
       - PORT=3000
     depends_on:

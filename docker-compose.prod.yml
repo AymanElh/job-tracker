@@ -6,9 +6,15 @@ services:
       - MONGO_APP_PASS=${MONGO_APP_PASS}
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASS}
+    env_file: .env.prod
     volumes:
       - mongo_data:/data/db
       - ./api/src/config/mongo-init.js:/docker-entrypoint-initdb.d/init.js:ro
+    networks:
+      - jobtrackr_net
+
+  mongo-express:
+    env_file: .env.prod
     networks:
       - jobtrackr_net
 
