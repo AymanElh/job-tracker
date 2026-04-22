@@ -37,6 +37,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isInitialized: val });
   },
   logout: () => {
+    // Clear the non-httpOnly cookie for middleware checks
+    if (typeof document !== 'undefined') {
+      document.cookie = 'isAuthenticated=false; path=/; max-age=10';
+    }
     set({ user: null, token: null, isAuthenticated: false });
   },
 }));

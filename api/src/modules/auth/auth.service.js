@@ -28,7 +28,7 @@ const createSendToken = async (user, statusCode, req, res) => {
       Date.now() + parseInt(process.env.JWT_REFRESH_COOKIE_EXPIRES_IN || 7) * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: req.secure || req.headers['x-forwarded-proto'] === 'https' || process.env.NODE_ENV === 'production',
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
     sameSite: 'lax',
     path: '/',
   };

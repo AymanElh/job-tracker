@@ -120,6 +120,14 @@ app.use((err, req, res, next) => {
   error.statusCode = error.statusCode || 500;
   error.status = error.status || 'error';
 
+  // If 401, clear the isAuthenticated cookie to prevent client-side redirect loops
+  if (error.statusCode === 401) {
+    res.cookie('isAuthenticated', 'false', {
+      expires: new Date(Date.now() + 10 * 1000),
+      httpOnly: false,
+    });
+  }
+
   // Always log 500 errors to help debugging
   if (error.statusCode === 500) {
     console.error('Unhandled Server Error:', err);
