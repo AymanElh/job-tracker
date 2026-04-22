@@ -34,5 +34,15 @@ jobs:
 
       - name: Verify deployment
         run: |
-          sleep 10
-          curl -f http://localhost/api/v1/health || exit 1
+          echo "Waiting for services to become healthy..."
+          for i in $(seq 1 24); do
+            if curl -sf http://localhost/api/v1/health; then
+              echo "✅ Health check passed!"
+              exit 0
+            fi
+            echo "⏳ Attempt $i/24 failed, retrying in 5s..."
+            sleep 5
+          done
+          echo "❌ Health check failed after 2 minutes"
+          docker compose -p job-tracker logs --tail=50
+          exit 1
