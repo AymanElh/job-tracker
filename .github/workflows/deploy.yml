@@ -22,8 +22,10 @@ jobs:
 
       - name: Cleanup previous stack (self-hosted safety)
         run: |
-          docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml \
-            down --remove-orphans || true
+          # Force-remove named containers regardless of which Compose project created them
+          docker rm -f jobtrackr-mongo jobtrackr-mongo-admin jobtrackr-api jobtrackr-web jobtrackr-nginx 2>/dev/null || true
+          # Also clean up any orphan networks
+          docker network rm job-tracker_jobtrackr_net jobsearch_jobtrackr_net 2>/dev/null || true
 
       - name: Rebuild and restart containers
         run: |
