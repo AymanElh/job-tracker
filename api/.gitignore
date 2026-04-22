@@ -5,9 +5,8 @@ node_modules/
 .next/
 out/
 .vercel
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+# yarn.lock
+# pnpm-lock.yaml
 
 # Environment Variables
 .env
