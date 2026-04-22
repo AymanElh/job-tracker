@@ -12,6 +12,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 export default function Sidebar() {
