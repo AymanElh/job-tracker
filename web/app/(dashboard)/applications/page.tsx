@@ -47,8 +47,18 @@ function ApplicationsContent() {
   const [debouncedCity, setDebouncedCity] = useState(getParam('city', ''));
   const [filterMethod, setFilterMethod] = useState<string>(getParam('method', 'all'));
 
-  // Update URL whenever state changes
+  // Track whether this is the initial render — we must NOT call router.replace
+  // on mount because it triggers the Next.js middleware before AuthProvider has
+  // finished its async rehydration, causing a false redirect to /login.
+  const isMounted = useRef(false);
+
+  // Update URL whenever state changes (skip on initial render)
   useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+
     const params = new URLSearchParams();
     
     if (view !== 'list') params.set('view', view);

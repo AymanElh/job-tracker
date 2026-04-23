@@ -21,8 +21,12 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           setAuth(data.user, token);
         } catch (error) {
           // Refresh failed — the refreshToken cookie is absent or expired.
-          // The middleware will handle the redirect on the next navigation.
-          console.log('Session rehydration failed: session expired or not logged in.');
+          // Redirect to login only if on a protected route.
+          const publicPaths = ['/login', '/register'];
+          if (!publicPaths.some(p => window.location.pathname.startsWith(p))) {
+            window.location.href = '/login';
+            return;
+          }
         }
       }
       
