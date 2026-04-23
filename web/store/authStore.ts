@@ -25,6 +25,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   isInitialized: false,
   setAuth: (user, token) => {
+    // Set the non-httpOnly cookie for middleware checks
+    if (typeof document !== 'undefined') {
+      document.cookie = 'isAuthenticated=true; path=/; max-age=86400; SameSite=Lax';
+    }
     set({ user, token, isAuthenticated: true, isInitialized: true });
   },
   setUser: (user) => {
