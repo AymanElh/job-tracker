@@ -124,7 +124,10 @@ networks:
 volumes:
   mongo_data:
     name: jobtrackr_mongo_data
+    external: true
   prometheus_data:
     name: jobtrackr_prometheus_data
+    external: true
   grafana_data:
     name: jobtrackr_grafana_data
+    external: true
