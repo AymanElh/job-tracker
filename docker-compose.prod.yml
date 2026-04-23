@@ -59,6 +59,64 @@ services:
     networks:
       - jobtrackr_net
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: jobtrackr-prometheus
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:9090:9090'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - jobtrackr_net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: jobtrackr-grafana
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3001:3000'    # localhost only — not exposed
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASS}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - jobtrackr_net
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: jobtrackr-node-exporter
+    restart: unless-stopped
+    pid: host                          # ← ADD THIS — access host process info
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /run:/run:ro                   # ← ADD THIS
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'        # ← ADD THIS
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.pressure'         # ← ADD THIS — enables pressure metrics
+    networks:
+      - jobtrackr_net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: jobtrackr-cadvisor
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - jobtrackr_net
+
 networks:
   jobtrackr_net:
     driver: bridge
@@ -66,3 +124,7 @@ networks:
 volumes:
   mongo_data:
     name: jobtrackr_mongo_data
+  prometheus_data:
+    name: jobtrackr_prometheus_data
+  grafana_data:
+    name: jobtrackr_grafana_data
