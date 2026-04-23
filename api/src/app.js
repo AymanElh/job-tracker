@@ -11,6 +11,8 @@ const logger = require('./config/logger');
 const { AppError, ApiResponse } = require('./utils');
 const authRouter = require('./modules/auth/auth.routes');
 const applicationRouter = require('./modules/applications/application.routes');
+const { metricsMiddleware, metricsHandler } = require('./modules/metrics/metrics');
+
 
 const app = express();
 
@@ -25,14 +27,14 @@ app.use(cookieParser());
 
 // 2. CORS configuration
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.FRONTEND_URL
     : [
-        'http://localhost:3000', 
-        'http://localhost:3001', 
-        'http://127.0.0.1:3000', 
-        'http://127.0.0.1:3001'
-      ],
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:3001'
+    ],
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
 };
@@ -62,6 +64,9 @@ app.use('/uploads', express.static('uploads'));
 // Logging
 app.use(morgan('combined', { stream: { write: (message) => logger.info(message.trim()) } }));
 
+// Performance & Usage Monitoring
+app.use(metricsMiddleware);
+
 // Health Check
 app.get('/health', (req, res) => {
   ApiResponse.success(res, { status: 'OK' }, 'System is healthy');
@@ -70,9 +75,13 @@ app.get('/api/v1/health', (req, res) => {
   ApiResponse.success(res, { status: 'OK' }, 'System is healthy');
 });
 
+// Prometheus Exposure
+app.get('/api/v1/metrics', metricsHandler);
+
 // Routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/applications', applicationRouter);
+
 
 // 404 Handler
 app.use((req, res, next) => {
