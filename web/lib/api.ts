@@ -1,5 +1,14 @@
-import axios from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/authStore';
+
+type RetriableRequestConfig = InternalAxiosRequestConfig & {
+  _retry?: boolean;
+};
+
+type FailedQueueItem = {
+  resolve: (token: string | null) => void;
+  reject: (error: unknown) => void;
+};
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || '/api/v1',
@@ -12,9 +21,9 @@ const api = axios.create({
 // Variable to track if we are currently refreshing the token
 let isRefreshing = false;
 // Queue to store requests that failed while refreshing
-let failedQueue: any[] = [];
+let failedQueue: FailedQueueItem[] = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -24,6 +33,15 @@ const processQueue = (error: any, token: string | null = null) => {
   });
 
   failedQueue = [];
+};
+
+const isAuthRoute = (url?: string) => {
+  if (!url) return false;
+
+  return url.includes('/auth/login')
+    || url.includes('/auth/register')
+    || url.includes('/auth/refresh-token')
+    || url.includes('/auth/logout');
 };
 
 // Request interceptor to add the token to every request
@@ -43,17 +61,24 @@ api.interceptors.request.use(
 // Response interceptor to handle authentication errors
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as RetriableRequestConfig | undefined;
 
     // If the error is 401 and not already a retry
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401
+      && originalRequest
+      && !originalRequest._retry
+      && !isAuthRoute(originalRequest.url)
+    ) {
       if (isRefreshing) {
-        return new Promise((resolve, reject) => {
+        return new Promise<string | null>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
+            if (token) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
             return api(originalRequest);
           })
           .catch((err) => {
@@ -82,7 +107,7 @@ api.interceptors.response.use(
         
         processQueue(null, token);
         return api(originalRequest);
-      } catch (refreshError: any) {
+      } catch (refreshError: unknown) {
         processQueue(refreshError, null);
         
         // Clear auth state and redirect to login if refresh fails
